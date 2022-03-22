@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import axios from 'axios'
 
 import Layout from '@components/layout'
 import { isValidUSZipcode } from '@utils/isValidUSZipcode'
@@ -7,7 +8,9 @@ const App = () => {
   const [zipcode, setZipcode] = useState('')
   const [forecast, setForecast] = useState(null)
 
-  const handleForecastSearch = (e) => {
+  const AWSEndpoint = `https://i627wdrol0.execute-api.us-east-1.amazonaws.com/live/forecast`
+
+  const handleForecastSearch = async (e) => {
     e.preventDefault()
     if (zipcode === '') {
       setForecast('please enter a US zipcode')
@@ -18,8 +21,27 @@ const App = () => {
       return
     }
     if (isValidUSZipcode(zipcode)) {
-      setForecast(`zipcode ${zipcode} is valid`)
+      const forecastData = await fetchForecast()
+      setForecast(forecastData)
       setZipcode('')
+    }
+  }
+
+  const fetchForecast = async () => {
+    try {
+      const response = await axios.get({
+        method: 'get',
+        url: AWSEndpoint,
+        responseType: 'json',
+        params: {
+          zipcode,
+        },
+      })
+      console.log('response', response)
+      return JSON.stringify(response)
+    } catch (error) {
+      console.log('fetch forcast error')
+      console.error(error)
     }
   }
 
@@ -38,7 +60,7 @@ const App = () => {
           onChange={(e) => setZipcode(e.target.value)}
         />
         <div
-          className="bg-blue-500 hover:bg-blue-700 text-white w-min font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer"
+          className="bg-blue-400 hover:bg-blue-500 transition hover:scale-105 text-white w-min font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer"
           onClick={handleForecastSearch}
         >
           search

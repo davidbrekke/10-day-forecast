@@ -8,7 +8,7 @@ const App = () => {
   const [zipcode, setZipcode] = useState('')
   const [forecast, setForecast] = useState(null)
 
-  const AWSEndpoint = `https://i627wdrol0.execute-api.us-east-1.amazonaws.com/live/forecast`
+  const AWSEndpoint = `https://i627wdrol0.execute-api.us-east-1.amazonaws.com/forecast`
 
   const handleForecastSearch = async (e) => {
     e.preventDefault()
@@ -29,16 +29,16 @@ const App = () => {
 
   const fetchForecast = async () => {
     try {
-      const response = await axios.get({
+      const { data } = await axios({
         method: 'get',
-        url: AWSEndpoint,
+        url: `${AWSEndpoint}?zipcode=${zipcode}`,
         responseType: 'json',
-        params: {
-          zipcode,
+        headers: {
+          'Content-Type': 'application/json',
         },
       })
-      console.log('response', response)
-      return JSON.stringify(response)
+      console.log('response', data)
+      return data
     } catch (error) {
       console.log('fetch forcast error')
       console.error(error)
